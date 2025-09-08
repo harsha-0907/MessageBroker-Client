@@ -1,4 +1,5 @@
 
+import json
 import time, asyncio, sys
 import requests, socket, websockets
 from mbexceptions import *
@@ -13,7 +14,8 @@ class MBClient:
         self.httpUri = "https://"+uri+f':{httpPort}' if is_SSl else "http://"+uri+f':{httpPort}'
         self.webUri = "wss://"+uri+f':{webPort}' if is_SSl else "ws://"+uri+f':{webPort}'
         
-    async def __authenticate(self):
+    # Auth & Connection Operations
+    def __authenticate(self):
         try:
             LOGIN_PATH = "/auth/login"
 
@@ -23,6 +25,7 @@ class MBClient:
             })
 
             if _resp.status_code != 200:
+                self.isAuthenticated = False
                 if _resp.status_code == 404:
                     raise HostNotFoundException()
 
@@ -30,6 +33,7 @@ class MBClient:
 
             _resp_json = _resp.json()
             self.authToken = _resp_json.get("auth-token", None)
+            print(self.authToken)
             self.isAuthenticated = True
 
             if self.authToken is None:
@@ -50,13 +54,12 @@ class MBClient:
         except Exception as _e:
             print(f"Caught Error {str(_e)}")        
     
-    async def __connectToMB(self):
+    async def __initializeClient(self):
         """ Here, we will be creating a websocket connection"""
         WEBSOCKET_PATH = "/mb"
         if not self.isAuthenticated:
-            await self.__authenticate()
-            if not self.isAuthenticated:
-                raise CredentialException("Unable to Authenticate, couldn't connect")
+            # TO-DO - Can add authentication if required
+            raise CredentialException("Client not Authenticated. Authenticate First")
 
         headers = {
             "Authorization": self.authToken
@@ -64,44 +67,39 @@ class MBClient:
 
         try:
             self.socket = await websockets.connect(self.webUri+WEBSOCKET_PATH, additional_headers=headers)
-            self.isConnected = await self.ping()
-            return self.socket
+            await self.ping()
         
         except Exception as _e:
             print(_e)
-    
-    def authAndConnect(self):
-        asyncio.run(self.__connectToMB())
 
     async def ping(self):
+        """ Checks if the client can ping the server - Updates the status of `isConnected` """
         try:
             st = time.time()
             await self.socket.send("Ping")
             resp = await self.socket.recv()
 
-            if resp == "Reply":
+            if resp == "Suii":
                 timeTaken = time.time()-st
                 print(f"Ping Successful - Time {timeTaken*100}ms")
-                return True
+                self.isConnected = True
             
-            return False
+            else:
+                print("Unable to Ping the system - Wrong Reply")
+                self.isConnected = False
         
         except websockets.exceptions.ConnectionClosedError:
             print("Websocket Disconnected")
-            return False
+            self.isConnected = False
         
         except Exception as _e:
-            return False
+            print(f"Exception {_e}")
+            self.isConnected = False
 
-    def __str__(self):
-        if self.isConnected:
-            return f"ConnectionObject-Connected:{self.isConnected}-{self.username}:{self.password}@{self.uri}"
-        else:
-            return f"ConnectionObject-Authenticated:{self.isAuthenticated}-{self.username}:{self.password}@{self.uri}"
+        finally:
+            return self.isConnected
 
-client = MBClient(uri="localhost",
-    username="guest", password="guest")
+    async def authAndConnect(self):
+        self.__authenticate()
+        await self.__initializeClient()
 
-connection.authAndConnect()
-
-print(connection)
