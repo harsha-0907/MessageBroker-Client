@@ -133,7 +133,7 @@ class MBClient:
             if resp.get("error", False):
                 statusCode = resp.get("statusCode", 600)
                 errorMessage = resp.get("message")
-                raise UnknownException(message)
+                raise UnknownException(errorMessage)
 
             return resp.get("message")
 
@@ -155,7 +155,7 @@ class MBClient:
         if resp.get("error", False):
             statusCode = resp.get("statusCode", 600)
             errorMessage = resp.get("message")
-            raise UnknownException(message)
+            raise UnknownException(errorMessage)
 
         return resp.get("message")
 
