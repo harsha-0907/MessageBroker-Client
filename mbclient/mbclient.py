@@ -112,11 +112,29 @@ class MBClient:
         if ack:
             resp = await self.socket.recv()
             return resp
-        
-
+    
     def __str__(self):
         if self.isConnected:
             return f"ConnectionObject-Connected:{self.isConnected}-{self.username}:{self.password}@{self.uri}"
         else:
             return f"ConnectionObject-Authenticated:{self.isAuthenticated}-{self.username}:{self.password}@{self.uri}"
+    
+    async def push(self, _message: str, exchange: str="", queues: list=[""], ack: bool = False):
+        ACTION = "POST"
+        message = {
+            "action": ACTION,
+            "exchange": exchange,
+            "queues": queues, # Many
+            "message": _message,
+            "ack": ack
+        }
+        resp = json.loads(await self.__sendMessage(json.dumps(message), ack))
+        if ack:
+            if resp.get("error", False):
+                statusCode = resp.get("statusCode", 600)
+                errorMessage = resp.get("message")
+                raise UnknownException(message)
+
+            return resp.get("message")
+
 
