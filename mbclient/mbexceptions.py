@@ -1,28 +1,21 @@
 
 class HostNotFoundException(Exception):
     def __init__(self, message: str = "Host not Found"):
-        self.message = message
-    
-    def __str__(self):
-        return self.message
+        super().__init__(message)
+        self.statusCode = 701
 
 class NoInternetConnection(Exception):
-    def __init__(self):
-        self.message = "No Internet is Available to connect"
+    def __init__(self, message="No Internet is Available to connect"):
+        super().__init__(message)
+        self.statusCode = 702
     
-    def __str__(self):
-        return self.message
-
 class CredentialException(Exception):
-    def __init__(self, message: str = "Unable to authenticate, check credentials"):
-        self.message = message
-    
-    def __str__(self):
-        return self.message
+    def __init__(self, message: str = "Authentication Failure: Recheck credentials"):
+        super().__init__(message)
+        self.statusCode = 703
 
-class UnknownException(BaseException):
+class UnknownException(Exception):
     def __init__(self, message):
-        self.message = message
+        super().__init__(message)
+        self.statusCode = 700
     
-    def __str__(self):
-        return self.message

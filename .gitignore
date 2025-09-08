@@ -1,0 +1,4 @@
+.venv/
+.idx/
+__pycache__/
+devserver.sh
