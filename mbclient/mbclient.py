@@ -163,3 +163,34 @@ class MBClient:
         await self.socket.close()
         print("Socket Closed")
 
+
+# Testing & Benchmarking
+async def main():
+    client = MBClient(uri="localhost", username="guest", password="guest")
+    client._MBClient__authenticate()
+    await client._MBClient__initializeClient()
+    print(client)
+    st = time.time()
+    print("Sending Messages")
+    for i in range(10):
+        print(i)
+        resp = await client.push("Hi Harsha", ack=True)
+        print(resp)
+
+    print("Sending Done")
+    et1 = time.time()
+    print(et1-st)
+    print("Fetching Messages")
+    for i in range(11):
+        print(i)
+        resp = await client.pull()
+        print(resp)
+
+    await client.close()
+    print((time.time()-et1))
+    print((time.time()-et1))
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
+
