@@ -159,3 +159,7 @@ class MBClient:
 
         return resp.get("message")
 
+    async def close(self):
+        await self.socket.close()
+        print("Socket Closed")
+
