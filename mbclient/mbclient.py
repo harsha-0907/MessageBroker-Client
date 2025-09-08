@@ -137,4 +137,25 @@ class MBClient:
 
             return resp.get("message")
 
+    async def pull(self, exchange: str="", queue: str = ""):
+        ACTION = "GET"
+        if not isinstance(queue, str):
+            raise UnknownException("Expects one queue, recieved list")
+
+        message = {
+            "action": ACTION,
+            "exchange": exchange,
+            "queues": [queue],
+            "message": "",
+            "ack": True
+        }
+
+        resp = json.loads(await self.__sendMessage(json.dumps(message), True))
+        
+        if resp.get("error", False):
+            statusCode = resp.get("statusCode", 600)
+            errorMessage = resp.get("message")
+            raise UnknownException(message)
+
+        return resp.get("message")
 
