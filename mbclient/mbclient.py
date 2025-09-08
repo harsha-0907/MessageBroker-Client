@@ -103,3 +103,20 @@ class MBClient:
         self.__authenticate()
         await self.__initializeClient()
 
+    # Client Defined Operations
+    async def __sendMessage(self, data, ack):
+        if not self.isConnected:
+            raise CredentialException()
+        
+        await self.socket.send(data)
+        if ack:
+            resp = await self.socket.recv()
+            return resp
+        
+
+    def __str__(self):
+        if self.isConnected:
+            return f"ConnectionObject-Connected:{self.isConnected}-{self.username}:{self.password}@{self.uri}"
+        else:
+            return f"ConnectionObject-Authenticated:{self.isAuthenticated}-{self.username}:{self.password}@{self.uri}"
+
