@@ -128,8 +128,9 @@ class MBClient:
             "message": _message,
             "ack": ack
         }
-        resp = json.loads(await self.__sendMessage(json.dumps(message), ack))
+        resp = await self.__sendMessage(json.dumps(message), ack)
         if ack:
+            resp = json.loads(resp)
             if resp.get("error", False):
                 statusCode = resp.get("statusCode", 600)
                 errorMessage = resp.get("message")
