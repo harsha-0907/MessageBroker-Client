@@ -15,7 +15,7 @@ class CredentialException(Exception):
         self.statusCode = 703
 
 class UnknownException(Exception):
-    def __init__(self, message):
+    def __init__(self, message, statusCode=600):
         super().__init__(message)
-        self.statusCode = 700
+        self.statusCode = statusCode
     
