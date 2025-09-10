@@ -119,7 +119,7 @@ class MBClient:
         else:
             return f"ConnectionObject-Authenticated:{self.isAuthenticated}-{self.username}:{self.password}@{self.uri}"
     
-    async def push(self, _message: str, exchange: str="", queues: list=[""], ack: bool = False):
+    async def push(self, _message: str, exchange: str="default", queues: list=["default"], ack: bool = False):
         ACTION = "POST"
         message = {
             "action": ACTION,
@@ -138,7 +138,7 @@ class MBClient:
 
             return resp.get("message")
 
-    async def pull(self, exchange: str="", queue: str = ""):
+    async def pull(self, exchange: str="default", queue: str = "default"):
         ACTION = "GET"
         if not isinstance(queue, str):
             raise UnknownException("Expects one queue, recieved list")
@@ -163,4 +163,3 @@ class MBClient:
     async def close(self):
         await self.socket.close()
         print("Socket Closed")
-
