@@ -163,3 +163,54 @@ class MBClient:
     async def close(self):
         await self.socket.close()
         print("Socket Closed")
+
+    async def addQueue(self, queueName: str, exchange: str = "default"):
+        """ Add queue to the exchange"""
+        ACTION = "UPDATE-ADD"
+        ACK=True
+        args = {
+            "action": ACTION,
+            "exchange": exchange,
+            "queues": [queueName],
+            "message": "",
+            "ack": ACK
+        }
+
+        resp = await self.__sendMessage(json.dumps(args), ACK)
+
+        if resp:
+            resp = json.loads(resp)
+            if resp.get("error", False):
+                statusCode = resp.get("statusCode", 600)
+                errorMessage = resp.get("message")
+                raise UnknownException(errorMessage)
+
+            return resp.get("message")
+        
+        raise UnknownException(message="Returned None or something")
+    
+    async def removeQueue(self, queueName: str, exchange: str = "default", ack: bool = True):
+        """Remove queue to the exchage"""
+        ACTION = "UPDATE-REMOVE"
+        args = {
+            "action": ACTION,
+            "exchange": exchange,
+            "queues": [queueName],
+            "message": "",
+            "ack": ack
+        }
+
+        resp = await self.__sendMessage(json.dumps(args), ack)
+
+        if resp:
+            resp = json.loads(resp)
+            if resp.get("error", False):
+                statusCode = resp.get("statusCode", 600)
+                errorMessage = resp.get("message")
+                raise UnknownException(errorMessage)
+            
+            return resp.get("message")
+
+        raise UnknownException(message="Unknown Exception : Recieved None message")
+
+
