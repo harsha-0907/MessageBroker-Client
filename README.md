@@ -5,6 +5,7 @@ A simple and lightweight **client module** to communicate with the [Custom Messa
 This client is designed to provide:
 - 🧵 **Simple APIs** to publish and consume messages
 - ⚡ **Fast communication** with the broker
+- 🗂️ Ability to create and delete queues for flexible message management
 - 🧱 A clean foundation to build language-specific SDKs or microservices around the broker
 
 > Built alongside the [Custom Message Broker](https://github.com/your-username/broker-repo) as part of the MVP-1 release.
